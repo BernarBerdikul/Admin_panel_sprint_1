@@ -21,7 +21,7 @@ def load_from_sqlite(
     # migrate each table
     for table in sqlite_loader.get_db_tables():
         # reset offset value
-        offset = 0
+        offset: int = 0
         # get count of records in table
         count_obj = sqlite_loader.get_tables_rows_count(table=table)
         formatting = sqlite_loader.get_formatting_string(table=table)

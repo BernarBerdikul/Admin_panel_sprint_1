@@ -30,7 +30,7 @@ class PostgresSaver:
 
     def save_data(self, table: str, values: str) -> None:
         """
-        save values in specific table in PostgreSQL database
+        Save values in specific table in PostgreSQL database
         :param table: str
             table's name in database
         :param values: str
@@ -53,12 +53,13 @@ class SQLiteLoader:
     """Class to load data from database"""
 
     def __init__(self, sqlite_conn: sqlite3.Connection):
-        """initialize sqlite db cursor"""
+        """Initialize sqlite db cursor"""
         self.cursor = sqlite_conn.cursor()
 
     @staticmethod
     def get_instance_dataclass(table: str, instance: tuple):
         """
+        Return dataclass instance
         :param table: str
             table's name in database
         :param instance: tuple
@@ -97,7 +98,7 @@ class SQLiteLoader:
 
     def get_data_by_table(self, table: str, limit: int, offset: int):
         """
-        method to get records from specific table
+        Method to get records from specific table
         :param table: str
             table's name in database
         :param limit: int
