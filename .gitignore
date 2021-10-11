@@ -79,6 +79,7 @@ target/
 
 # PyCharm
 .idea
+media
 
 ### Django ###
 *.log
