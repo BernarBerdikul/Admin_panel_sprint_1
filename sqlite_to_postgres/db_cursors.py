@@ -107,10 +107,7 @@ class SQLiteLoader:
         :return db query
         """
         fields: str = table_fields.get(table)
-        sql: str = (
-            f"SELECT {fields} FROM {table} "
-            f"LIMIT {limit} OFFSET {offset}"
-        )
+        sql: str = f"SELECT {fields} FROM {table} LIMIT {limit} OFFSET {offset}"
         try:
             return self.cursor.execute(sql)
         except:

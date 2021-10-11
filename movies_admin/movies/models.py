@@ -17,10 +17,8 @@ class PersonType(models.TextChoices):
 
 
 class Genre(UUIDMixin, UpdateTimeMixin):
-    name = models.CharField(
-        max_length=30, verbose_name=_("Название"))
-    description = models.TextField(
-        blank=True, null=True, verbose_name=_("Описание"))
+    name = models.CharField(max_length=30, verbose_name=_("Название"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("Описание"))
 
     class Meta:
         verbose_name = _("Жанр")
@@ -32,10 +30,10 @@ class Genre(UUIDMixin, UpdateTimeMixin):
 
 
 class Person(UUIDMixin, UpdateTimeMixin):
-    full_name = models.CharField(
-        max_length=60, verbose_name=_("Имя фамилия"))
+    full_name = models.CharField(max_length=60, verbose_name=_("Имя фамилия"))
     birth_date = models.DateField(
-        blank=True, null=True, verbose_name=_("Дата рождения"))
+        blank=True, null=True, verbose_name=_("Дата рождения")
+    )
 
     class Meta:
         verbose_name = _("Персона")
@@ -47,38 +45,32 @@ class Person(UUIDMixin, UpdateTimeMixin):
 
 
 class GenreFilmWork(UUIDMixin, CreateTimeMixin):
-    film_work = models.ForeignKey(
-        "FilmWork", on_delete=models.CASCADE)
-    genre = models.ForeignKey(
-        Genre, on_delete=models.CASCADE)
+    film_work = models.ForeignKey("FilmWork", on_delete=models.CASCADE)
+    genre = models.ForeignKey("Genre", on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'content"."genre_film_work'
-        unique_together = (('film_work', 'genre'),)
+        unique_together = (("film_work", "genre"),)
 
 
 class PersonFilmWork(UUIDMixin, CreateTimeMixin):
-    film_work = models.ForeignKey(
-        "FilmWork", on_delete=models.CASCADE)
-    person = models.ForeignKey(
-        Person, on_delete=models.CASCADE)
+    film_work = models.ForeignKey("FilmWork", on_delete=models.CASCADE)
+    person = models.ForeignKey("Person", on_delete=models.CASCADE)
     role = models.CharField(
         max_length=30,
         choices=PersonType.choices,
         default=PersonType.ACTOR,
-        verbose_name=_("Роль в фильме")
+        verbose_name=_("Роль в фильме"),
     )
 
     class Meta:
         db_table = 'content"."person_film_work'
-        unique_together = (('film_work', 'person', 'role'),)
+        unique_together = (("film_work", "person", "role"),)
 
 
 class FilmWork(UUIDMixin, UpdateTimeMixin):
-    title = models.CharField(
-        max_length=255, verbose_name=_("Название"))
-    description = models.TextField(
-        blank=True, verbose_name=_("Описание"))
+    title = models.CharField(max_length=255, verbose_name=_("Название"))
+    description = models.TextField(blank=True, verbose_name=_("Описание"))
     creation_date = models.DateField(
         blank=True, null=True, verbose_name=_("Дата создания")
     )
@@ -86,7 +78,9 @@ class FilmWork(UUIDMixin, UpdateTimeMixin):
         max_length=255, blank=True, null=True, verbose_name=_("Сертификат")
     )
     file_path = models.FileField(
-        upload_to=f"{settings.MEDIA_ROOT}/film_works/", blank=True, verbose_name=_("Файл")
+        upload_to=f"{settings.MEDIA_ROOT}/film_works/",
+        blank=True,
+        verbose_name=_("Файл"),
     )
     rating = models.FloatField(
         validators=[MinValueValidator(0)], blank=True, verbose_name=_("Рейтинг")

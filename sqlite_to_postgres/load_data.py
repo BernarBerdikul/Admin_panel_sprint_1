@@ -36,12 +36,10 @@ def load_from_sqlite(
             for row in sqlite_loader.get_data_by_table(
                     table=table, limit=chunk_n, offset=offset
             ):
-                value: tuple = astuple(sqlite_loader.get_instance_dataclass(
-                    table=table, instance=row
-                ))
-                prepared_row = postgres_saver.cursor.mogrify(
-                    formatting, value
-                ).decode()
+                value: tuple = astuple(
+                    sqlite_loader.get_instance_dataclass(table=table, instance=row)
+                )
+                prepared_row = postgres_saver.cursor.mogrify(formatting, value).decode()
                 values += f"\n({prepared_row}),"
             # save data in table
             postgres_saver.save_data(table=table, values=values)

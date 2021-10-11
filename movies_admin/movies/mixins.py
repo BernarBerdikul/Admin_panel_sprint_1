@@ -6,8 +6,7 @@ class UUIDMixin(models.Model):
     """Миксин для uuid первичного ключа"""
 
     id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4,
-        editable=False, unique=True
+        primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
 
     class Meta:
