@@ -1,4 +1,3 @@
-from psycopg2.extensions import connection as _connection
 import sqlite3
 import table_dataclasses as tdt
 
@@ -21,32 +20,24 @@ table_fields: dict = {
 }
 
 
-class PostgresSaver:
-    """Class to save data into database"""
-
-    def __init__(self, pg_conn: _connection):
-        """initialize PostgreSQL db cursor"""
-        self.cursor = pg_conn.cursor()
-
-    def save_data(self, table: str, values: str) -> None:
-        """
-        Save values in specific table in PostgreSQL database
-        :param table: str
-            table's name in database
-        :param values: str
-            values for insert
-        :return None
-        """
-        fields: str = table_fields.get(table)
-        sql: str = f"""
-        INSERT INTO content.{table} ({fields})
-        VALUES {values[:-1]}
-        ON CONFLICT DO NOTHING
-        """
-        try:
-            return self.cursor.execute(sql)
-        except:
-            raise Exception("Can not write records in database")
+def postgres_save_data(cursor, table: str, values: str) -> None:
+    """
+    Save values in specific table in PostgreSQL database
+    :param cursor: postgres cursor
+        postgres db cursor
+    :param table: str
+        table's name in database
+    :param values: str
+        values for insert
+    :return None
+    """
+    fields: str = table_fields.get(table)
+    sql: str = f"""
+    INSERT INTO content.{table} ({fields})
+    VALUES {values[:-1]}
+    ON CONFLICT DO NOTHING
+    """
+    return cursor.execute(sql)
 
 
 class SQLiteLoader:
@@ -109,7 +100,4 @@ class SQLiteLoader:
         """
         fields: str = table_fields.get(table)
         sql: str = f"SELECT {fields} FROM {table} LIMIT {limit} OFFSET {offset}"
-        try:
-            return self.cursor.execute(sql)
-        except:
-            raise Exception("Can not read records from database")
+        return self.cursor.execute(sql)

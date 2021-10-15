@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
 from .mixins import UUIDMixin, CreateTimeMixin, UpdateTimeMixin
 
@@ -52,6 +52,9 @@ class GenreFilmWork(UUIDMixin, CreateTimeMixin):
         db_table = 'content"."genre_film_work'
         unique_together = (("film_work", "genre"),)
 
+    def __str__(self):
+        return f"{self.film_work.title} - {self.genre.name}"
+
 
 class PersonFilmWork(UUIDMixin, CreateTimeMixin):
     film_work = models.ForeignKey("FilmWork", on_delete=models.CASCADE)
@@ -60,12 +63,15 @@ class PersonFilmWork(UUIDMixin, CreateTimeMixin):
         max_length=30,
         choices=PersonType.choices,
         default=PersonType.ACTOR,
-        verbose_name=_("Роль в фильме"),
+        verbose_name=_("Роль в фильме")
     )
 
     class Meta:
         db_table = 'content"."person_film_work'
         unique_together = (("film_work", "person", "role"),)
+
+    def __str__(self):
+        return f"{self.film_work.title} - {self.person.full_name} - {self.role}"
 
 
 class FilmWork(UUIDMixin, UpdateTimeMixin):
@@ -83,7 +89,8 @@ class FilmWork(UUIDMixin, UpdateTimeMixin):
         verbose_name=_("Файл"),
     )
     rating = models.FloatField(
-        validators=[MinValueValidator(0)], blank=True, verbose_name=_("Рейтинг")
+        validators=[MinValueValidator(1), MaxValueValidator(10)],
+        blank=True, verbose_name=_("Рейтинг")
     )
     type = models.CharField(
         max_length=30,

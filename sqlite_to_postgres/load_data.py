@@ -1,9 +1,13 @@
+import os
 import sqlite3
 import psycopg2
 from psycopg2.extensions import connection as _connection
 from psycopg2.extras import DictCursor
-from db_cursors import PostgresSaver, SQLiteLoader
+from db_cursors import SQLiteLoader, postgres_save_data
 from dataclasses import astuple
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def load_from_sqlite(
@@ -17,7 +21,7 @@ def load_from_sqlite(
     chunk_n: int = 200
     # declare db cursors
     sqlite_loader = SQLiteLoader(sqlite_connection)
-    postgres_saver = PostgresSaver(pg_connection)
+    postgres_cursor = pg_connection.cursor()
     # migrate each table
     for table in sqlite_loader.get_db_tables():
         # reset offset value
@@ -39,24 +43,32 @@ def load_from_sqlite(
                 value: tuple = astuple(
                     sqlite_loader.get_instance_dataclass(table=table, instance=row)
                 )
-                prepared_row = postgres_saver.cursor.mogrify(formatting, value).decode()
+                prepared_row = postgres_cursor.mogrify(formatting, value).decode()
                 values += f"\n({prepared_row}),"
             # save data in table
-            postgres_saver.save_data(table=table, values=values)
+            postgres_save_data(cursor=postgres_cursor, table=table, values=values)
             # update offset
             offset += chunk_n
 
 
 if __name__ == "__main__":
     dsl = {
-        "dbname": "movies",
-        "user": "movies",
-        "password": "movies",
-        "host": "localhost",
-        "port": 5432,
+        "dbname": os.getenv("DB_NAME"),
+        "user": os.getenv("DB_USER"),
+        "password": os.getenv("DB_PASSWORD"),
+        "host": os.getenv("DB_HOST", "127.0.0.1"),
+        "port": os.getenv("DB_PORT", 5432),
         "options": "-c search_path=content",
     }
-    with sqlite3.connect("db.sqlite") as sqlite_conn, psycopg2.connect(
-            **dsl, cursor_factory=DictCursor
-    ) as pg_conn:
-        load_from_sqlite(sqlite_conn, pg_conn)
+    sqlite_conn = sqlite3.connect("db.sqlite")
+    pg_conn = psycopg2.connect(
+        **dsl, cursor_factory=DictCursor
+    )
+    try:
+        with sqlite_conn, pg_conn:
+            load_from_sqlite(sqlite_conn, pg_conn)
+    except Exception as e:
+        raise e
+    finally:
+        sqlite_conn.close()
+        pg_conn.close()
