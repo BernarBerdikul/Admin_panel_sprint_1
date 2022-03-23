@@ -1,3 +1,8 @@
+-- Создание базы и пользователя с назначенными правами доступа:
+CREATE DATABASE movies;
+CREATE USER movies WITH PASSWORD 'movies';
+GRANT ALL PRIVILEGES ON DATABASE "movies" to movies;
+
 -- Создание отдельной схемы для контента:
 CREATE SCHEMA IF NOT EXISTS content;
 

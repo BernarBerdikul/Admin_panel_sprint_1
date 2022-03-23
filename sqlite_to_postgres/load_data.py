@@ -1,17 +1,19 @@
 import os
 import sqlite3
+from dataclasses import astuple
+from typing import Union
+
 import psycopg2
+from db_cursors import SQLiteLoader, postgres_save_data
+from dotenv import load_dotenv
 from psycopg2.extensions import connection as _connection
 from psycopg2.extras import DictCursor
-from db_cursors import SQLiteLoader, postgres_save_data
-from dataclasses import astuple
-from dotenv import load_dotenv
 
 load_dotenv()
 
 
 def load_from_sqlite(
-        sqlite_connection: sqlite3.Connection, pg_connection: _connection
+    sqlite_connection: sqlite3.Connection, pg_connection: _connection
 ) -> None:
     """
     Method to migrate data from SQLite to Postgres
@@ -38,7 +40,7 @@ def load_from_sqlite(
             # reset 'values' string
             values: str = ""
             for row in sqlite_loader.get_data_by_table(
-                    table=table, limit=chunk_n, offset=offset
+                table=table, limit=chunk_n, offset=offset
             ):
                 value: tuple = astuple(
                     sqlite_loader.get_instance_dataclass(table=table, instance=row)
@@ -52,7 +54,7 @@ def load_from_sqlite(
 
 
 if __name__ == "__main__":
-    dsl = {
+    dsl: dict[str, Union[str, int]] = {
         "dbname": os.getenv("DB_NAME"),
         "user": os.getenv("DB_USER"),
         "password": os.getenv("DB_PASSWORD"),
@@ -61,9 +63,7 @@ if __name__ == "__main__":
         "options": "-c search_path=content",
     }
     sqlite_conn = sqlite3.connect("db.sqlite")
-    pg_conn = psycopg2.connect(
-        **dsl, cursor_factory=DictCursor
-    )
+    pg_conn = psycopg2.connect(**dsl, cursor_factory=DictCursor)
     try:
         with sqlite_conn, pg_conn:
             load_from_sqlite(sqlite_conn, pg_conn)

@@ -1,8 +1,8 @@
 import sqlite3
+
 import table_dataclasses as tdt
 
-
-table_dataclasses: dict = {
+table_dataclasses: dict[str, object] = {
     "genre": tdt.Genre,
     "film_work": tdt.FilmWork,
     "person": tdt.Person,
@@ -11,7 +11,7 @@ table_dataclasses: dict = {
 }
 
 
-table_fields: dict = {
+table_fields: dict[str, str] = {
     "genre": "id, created_at, updated_at, name, description",
     "film_work": "id, created_at, updated_at, title, type, file_path, description, certificate, creation_date, rating",
     "person": "id, created_at, updated_at, full_name, birth_date",
@@ -20,7 +20,7 @@ table_fields: dict = {
 }
 
 
-def postgres_save_data(cursor, table: str, values: str) -> None:
+def postgres_save_data(cursor, table: str, values: str):
     """
     Save values in specific table in PostgreSQL database
     :param cursor: postgres cursor
